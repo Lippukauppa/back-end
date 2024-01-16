@@ -1,12 +1,17 @@
-import express, { Request, Response } from "express";
-const port = 8000;
-
+import express from 'express';
+import eventRouter from './routes/events.js';
 const app = express();
+app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hei Kansa!");
+const PORT = 3000;
+
+app.get('/ping', (_req, res) => {
+  console.log('someone pinged here');
+  res.send('pong');
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.use('/api/events', eventRouter);
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

@@ -1,32 +1,43 @@
 import express from 'express';
-import eventService from '../services/eventService.js';
+import { Event } from "../models/event.js"
+import { NewEventEntry } from '../types.js';
 
 const router = express.Router();
 
 router.get('/', (_req, res) => {
-  res.send(eventService.getEntries());
+  Event.find({}).then(events => {
+    res.json(events)
+  })
 });
 
 router.get('/:id', (req, res) => {
-  const event = eventService.findById(Number(req.params.id));
-
-  if(event) {
-    res.send(event);
-  } else {
-    res.sendStatus(404);
-  }
+  Event.findById(String(req.params.id))
+    .then(event => {
+      if(event) {
+        res.send(event);
+      } else {
+        res.sendStatus(404);
+      }
+    })
 });
 
 router.post('/', (req, res) => {
-  /* eslint-disable @typescript-eslint/no-unsafe-assignment */
   const { name, date, tickets, price } = req.body;
-  const addedEvent = eventService.addEvent({
-    name,
-    date,
-    tickets,
-    price
-  });
-  res.json(addedEvent);
+  
+  const event = new Event(<NewEventEntry>{
+    name: name,
+    date: date,
+    tickets: tickets,
+    price: price
+  })
+
+  event.save()
+    .then(savedEvent => {
+      res.json(savedEvent)
+    })
+    .catch(error => {
+      console.log(error.message)
+    })
 });
 
 export default router;
